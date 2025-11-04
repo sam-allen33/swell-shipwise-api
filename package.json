@@ -1,0 +1,25 @@
+{
+  "name": "swell-shipwise-api",
+  "version": "1.0.0",
+  "description": "API to integrate Swell e-commerce with Shipwise shipping rates",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "node server.js",
+    "test": "node test.js"
+  },
+  "keywords": [
+    "swell",
+    "shipwise",
+    "shipping",
+    "ecommerce"
+  ],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "express": "^4.18.2",
+    "axios": "^1.6.0",
+    "dotenv": "^16.3.1",
+    "cors": "^2.8.5"
+  }
+}
