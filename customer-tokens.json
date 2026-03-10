@@ -1,0 +1,238 @@
+{
+  "customers": [
+    {
+      "name": "Digital Cotton Fulfillment",
+      "bearerToken": "d6abd977-fb67-4fab-9d2b-a0ef3acf9b5e",
+      "profileId": "1004",
+      "active": true
+    },
+    {
+      "name": "Flexfire Fulfillment",
+      "bearerToken": "0e34e57e-4eda-40f3-b1e6-f3227643d627",
+      "profileId": "1005",
+      "active": true
+    },
+    {
+      "name": "MWD Fulfillment",
+      "bearerToken": "3de057c1-adde-45f1-be2b-66421ddc4adb",
+      "profileId": "1011",
+      "active": true
+    },
+    {
+      "name": "Lindora",
+      "bearerToken": "d5d48533-fa33-45dd-9b22-a6d95bbd96b4",
+      "profileId": "2914",
+      "active": true
+    },
+    {
+      "name": "KKR",
+      "bearerToken": "b33e388f-994f-45df-96b9-2b05fa95797e",
+      "profileId": "3025",
+      "active": true
+    },
+    {
+      "name": "Warren Lotas",
+      "bearerToken": "fe838df6-fc4b-4d35-bbbc-9d3ebeb9241d",
+      "profileId": "7001204",
+      "active": true
+    },
+    {
+      "name": "Druski",
+      "bearerToken": "e5eb6075-5533-49e3-a18e-bdcfd7599900",
+      "profileId": "7001370",
+      "active": true
+    },
+    {
+      "name": "Akila Fulfillment",
+      "bearerToken": "d15e7221-3d70-4fb1-842a-c2f812e71c6b",
+      "profileId": "7001567",
+      "active": true
+    },
+    {
+      "name": "Raw Gear Fulfillment",
+      "bearerToken": "aab175ec-819d-473a-b4fe-29f0363ea290",
+      "profileId": "7001644",
+      "active": true
+    },
+    {
+      "name": "Alchemai",
+      "bearerToken": "0c685a02-053f-4e30-81f1-ab2766a4686c",
+      "profileId": "7001934",
+      "active": true
+    },
+    {
+      "name": "Eighteen Plus",
+      "bearerToken": "d962b42e-cbbb-4a70-9d0f-ebf5ae2b1841",
+      "profileId": "7002316",
+      "active": true
+    },
+    {
+      "name": "By Urth Fulfillment",
+      "bearerToken": "b0a7a6a1-5b8f-452d-9caa-313744869bc6",
+      "profileId": "7002421",
+      "active": true
+    },
+    {
+      "name": "XPLR",
+      "bearerToken": "755ef304-e46b-4600-9ed8-cbfcadfa942d",
+      "profileId": "7002736",
+      "active": true
+    },
+    {
+      "name": "CRBN Fulfillment",
+      "bearerToken": "14cd8761-47df-4864-85cb-e8e4a75188a5",
+      "profileId": "7003082",
+      "active": true
+    },
+    {
+      "name": "Stake Fulfillment",
+      "bearerToken": "6efd7ccc-a673-43ca-b5f3-a46e328b3aaf",
+      "profileId": "7003179",
+      "active": true
+    },
+    {
+      "name": "Florence Marine X",
+      "bearerToken": "2f97924f-989c-44dc-9cc9-d304be000d8e",
+      "profileId": "7003186",
+      "active": true
+    },
+    {
+      "name": "Teeqo Fulfillment",
+      "bearerToken": "59c8c1af-86f9-485b-acbf-990a4cec6d5c",
+      "profileId": "7003271",
+      "active": true
+    },
+    {
+      "name": "KICK Fulfillment",
+      "bearerToken": "abcea42e-b801-4f32-b96b-572d4ef623ba",
+      "profileId": "7003533",
+      "active": true
+    },
+    {
+      "name": "MBM Gallery",
+      "bearerToken": "fbeb766c-83cd-4263-ad53-b9ddc27cb767",
+      "profileId": "7003968",
+      "active": true
+    },
+    {
+      "name": "The Sketch Real",
+      "bearerToken": "9e010cfe-ade9-41ff-b10c-f9b4a45b12aa",
+      "profileId": "7005687",
+      "active": true
+    },
+    {
+      "name": "Sympl Supply",
+      "bearerToken": "d2d95aee-032f-4bc3-b4a4-35bc112ca266",
+      "profileId": "7005905",
+      "active": true
+    },
+    {
+      "name": "Puttwell Fulfillment",
+      "bearerToken": "7875f93b-42e6-4279-ba9e-3d4fff9055c1",
+      "profileId": "7007064",
+      "active": true
+    },
+    {
+      "name": "Sande Kids Fulfillment",
+      "bearerToken": "5f36bb83-7868-46eb-a1af-547c904be591",
+      "profileId": "7007066",
+      "active": true
+    },
+    {
+      "name": "VEIA",
+      "bearerToken": "4600b43c-3ce8-41ab-92d6-ba7d2f9a52b3",
+      "profileId": "7007142",
+      "active": true
+    },
+    {
+      "name": "Alera Fulfillment",
+      "bearerToken": "18da4e4e-35a2-4808-89a5-905dac5d4430",
+      "profileId": "7007188",
+      "active": true
+    },
+    {
+      "name": "Tailgate",
+      "bearerToken": "1397326c-ed09-4bd4-93ec-573f4ba77ea7",
+      "profileId": "7007233",
+      "active": true
+    },
+    {
+      "name": "StreetX",
+      "bearerToken": "c58f0f1e-f49a-4a6f-991f-19bd0fcf5675",
+      "profileId": "7007705",
+      "active": true
+    },
+    {
+      "name": "Ezee Freeze",
+      "bearerToken": "fdf2b7c8-5319-4a31-b637-053991e18372",
+      "profileId": "7007910",
+      "active": true
+    },
+    {
+      "name": "33D Test Profile",
+      "bearerToken": "49462bf8-2437-4427-97fc-66de2a6bd436",
+      "profileId": "7008266",
+      "active": true
+    },
+    {
+      "name": "33 Degrees",
+      "bearerToken": "dac531d3-5c4e-4146-af64-85ba08c0b5ec",
+      "profileId": "7010666",
+      "active": true
+    },
+    {
+      "name": "Santo Studio",
+      "bearerToken": "2e25f5c0-8eb9-4eaf-a845-62bf9205ffdf",
+      "profileId": "7008397",
+      "active": true
+    },
+    {
+      "name": "YVL Fulfillment",
+      "bearerToken": "6e293a5c-361b-4415-b2e7-863dfd22c05a",
+      "profileId": "7008569",
+      "active": true
+    },
+    {
+      "name": "Yeezy Fulfillment",
+      "bearerToken": "3c00fc2b-8fc1-4da0-b676-78a6f5dbc8d7",
+      "profileId": "7008592",
+      "active": true
+    },
+    {
+      "name": "Students Golf",
+      "bearerToken": "2d36a631-9422-4b9e-be36-e3e9ccde0e17",
+      "profileId": "7008998",
+      "active": true
+    },
+    {
+      "name": "Mococo",
+      "bearerToken": "39f98add-7370-4b82-9670-5cb3a58528b5",
+      "profileId": "7009009",
+      "active": true
+    },
+    {
+      "name": "Fresh Love",
+      "bearerToken": "c885ee1d-a5ec-4187-aeb9-49d7d438bbc9",
+      "profileId": "7009037",
+      "active": true
+    },
+    {
+      "name": "Dormsheets Fulfillment",
+      "bearerToken": "9616c8e6-ff3c-4de3-8b6a-e85b3ed6afe2",
+      "profileId": "7009134",
+      "active": true
+    },
+    {
+      "name": "3G Wellness",
+      "bearerToken": "FI77b5fb3b-b458-49b7-97be-ed7920f1df3b",
+      "profileId": "7009436",
+      "active": true
+    },
+    {
+      "name": "Yeezy",
+      "bearerToken": "ddd6f042-9e3c-45f1-a98b-12f8a6ff7066",
+      "profileId": "7008592",
+      "active": true
+    }
+  ]
+}
