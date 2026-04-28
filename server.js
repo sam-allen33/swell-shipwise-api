@@ -397,6 +397,10 @@ app.post('/api/shipping-rates', attachAuditContext, authenticateCustomer, async 
 
     const { items, destination } = req.body;
 
+    const destinationCountry = (destination?.country || 'US').toUpperCase();
+    const isInternational = destinationCountry !== 'US';
+    console.log(`📍 Destination country: ${destinationCountry}, international: ${isInternational}`);
+
     if (!items || !destination) {
       if (req.audit) {
         req.audit.shipwiseErrorJson = safeJsonString({
@@ -439,8 +443,9 @@ app.post('/api/shipping-rates', attachAuditContext, authenticateCustomer, async 
       },
       packages: items.map((item, index) => {
         const totalWeight = (item.weight || 1) * (item.quantity || 1);
+        const totalValue = (item.value || 0) * (item.quantity || 1);
 
-        return {
+        const basePackage = {
           packageId: `package_${index + 1}`,
           totalWeight,
           packaging: {
@@ -450,6 +455,34 @@ app.post('/api/shipping-rates', attachAuditContext, authenticateCustomer, async 
           },
           serviceFlags: ['BPM']
         };
+
+        if (isInternational) {
+          if (!item.harmonizedCode) {
+            console.warn(`⚠️ International item missing HS code:`, { sku: item.sku, hasHarmCode: !!item.harmonizedCode });
+          }
+          if (!item.countryOfOrigin) {
+            console.warn(`⚠️ International item missing country of origin:`, { sku: item.sku, hasCountry: !!item.countryOfOrigin });
+          }
+
+          basePackage.value = totalValue;
+          basePackage.customs = {
+            contentsDescription: 'Merchandise',
+            originCountry: item.countryOfOrigin || 'US',
+            signer: '33 Degrees',
+            customsTag: 'Merchandise',
+            items: [{
+              sku: item.sku || `item-${index + 1}`,
+              description: item.customsDescription || item.description || 'Merchandise',
+              qty: item.quantity || 1,
+              value: item.value || 0,
+              weight: item.weight || 0,
+              countryOfMfg: item.countryOfOrigin || 'US',
+              harmCode: item.harmonizedCode || ''
+            }]
+          };
+        }
+
+        return basePackage;
       })
     };
 
