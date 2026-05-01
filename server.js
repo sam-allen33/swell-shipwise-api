@@ -355,7 +355,8 @@ function authenticateCustomer(req, res, next) {
 
   req.customer = {
     name: customer.name,
-    profileId: customer.profileId
+    profileId: customer.profileId,
+    ratingOptionId: customer.ratingOptionId
   };
 
   if (req.audit) {
@@ -421,7 +422,7 @@ app.post('/api/shipping-rates', attachAuditContext, authenticateCustomer, async 
 
     const shipwiseRequest = {
       profileId: parseInt(req.customer.profileId, 10),
-      ratingOptionId: 'STANDARD',
+      ratingOptionId: req.customer.ratingOptionId || 'STANDARD',
       addressVerification: false,
       dateAdvanceDays: 0,
       to: {
@@ -492,6 +493,7 @@ app.post('/api/shipping-rates', attachAuditContext, authenticateCustomer, async 
 
     console.log('📤 Sending to Shipwise API...');
     console.log('Profile ID:', req.customer.profileId);
+    console.log('Rating Option ID:', req.customer.ratingOptionId || 'STANDARD');
 
     const shipwiseBearerToken = process.env.SHIPWISE_BEARER_TOKEN || process.env.BEARER_TOKEN;
 

@@ -46,6 +46,7 @@
       "name": "Akila Fulfillment",
       "bearerToken": "d15e7221-3d70-4fb1-842a-c2f812e71c6b",
       "profileId": "7001567",
+      "ratingOptionId": "Akila Standard",
       "active": true
     },
     {
@@ -82,6 +83,7 @@
       "name": "CRBN Fulfillment",
       "bearerToken": "14cd8761-47df-4864-85cb-e8e4a75188a5",
       "profileId": "7003082",
+      "ratingOptionId": "CRBN Standard",
       "active": true
     },
     {
@@ -94,6 +96,7 @@
       "name": "Florence Marine X",
       "bearerToken": "2f97924f-989c-44dc-9cc9-d304be000d8e",
       "profileId": "7003186",
+      "ratingOptionId": "Florence Standard",
       "active": true
     },
     {
@@ -136,6 +139,7 @@
       "name": "Sande Kids Fulfillment",
       "bearerToken": "5f36bb83-7868-46eb-a1af-547c904be591",
       "profileId": "7007066",
+      "ratingOptionId": "Sande Kids Standard",
       "active": true
     },
     {
@@ -166,6 +170,7 @@
       "name": "Ezee Freeze",
       "bearerToken": "fdf2b7c8-5319-4a31-b637-053991e18372",
       "profileId": "7007910",
+      "ratingOptionId": "Ezee Freeze Standard",
       "active": true
     },
     {
@@ -184,6 +189,7 @@
       "name": "Santo Studio",
       "bearerToken": "2e25f5c0-8eb9-4eaf-a845-62bf9205ffdf",
       "profileId": "7008397",
+      "ratingOptionId": "Santo Studio Standard",
       "active": true
     },
     {

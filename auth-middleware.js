@@ -44,6 +44,7 @@ function authenticateCustomer(req, res, next) {
   req.customer = {
     name: customer.name,
     profileId: customer.profileId,
+    ratingOptionId: customer.ratingOptionId,
     bearerToken: token
   };
 
