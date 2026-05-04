@@ -12,8 +12,6 @@ const PORT = process.env.PORT || 3001;
 
 const AUDIT_LOG_ENABLED = String(process.env.AUDIT_LOG_ENABLED || 'false').toLowerCase() === 'true';
 const AUDIT_DB_PATH = process.env.AUDIT_DB_PATH || '/home/data/audit.db';
-const SHIPWISE_DEFAULT_ORIGIN_COUNTRY = (process.env.SHIPWISE_DEFAULT_ORIGIN_COUNTRY || 'US').toUpperCase();
-const SHIPWISE_DEFAULT_CONSIGNEE_TAX_ID = process.env.SHIPWISE_DEFAULT_CONSIGNEE_TAX_ID || null;
 const SECRET_KEY_PATTERNS = ['token', 'authorization', 'secret', 'password', 'apiKey', 'apikey', 'bearer'];
 
 let auditDb;
@@ -358,9 +356,7 @@ function authenticateCustomer(req, res, next) {
   req.customer = {
     name: customer.name,
     profileId: customer.profileId,
-    ratingOptionId: customer.ratingOptionId,
-    standardRatingOptionId: customer.standardRatingOptionId || 'STANDARD',
-    expressRatingOptionId: customer.expressRatingOptionId || null
+    ratingOptionId: customer.ratingOptionId
   };
 
   if (req.audit) {
@@ -376,141 +372,6 @@ function authenticateCustomer(req, res, next) {
 
   console.log(`🔑 Authenticated: ${customer.name} (Profile ID: ${customer.profileId})`);
   return next();
-}
-
-function buildShipwiseRequest({ profileId, ratingOptionId, items, destination, isInternational }) {
-  const request = {
-    profileId: parseInt(profileId, 10),
-    ratingOptionId: ratingOptionId || 'STANDARD',
-    addressVerification: false,
-    dateAdvanceDays: 0,
-    to: {
-      id: 0,
-      name: destination.name || 'Customer',
-      company: destination.company || '',
-      address1: destination.address1 || '',
-      address2: destination.address2 || '',
-      city: destination.city || '',
-      state: destination.state || '',
-      postalCode: destination.zip || destination.postalCode || '',
-      countryCode: destination.country || 'US',
-      phone: destination.phone || '',
-      email: destination.email || '',
-      avsInfo: {
-        validationState: 1,
-        isResidential: true
-      }
-    },
-    packages: items.map((item, index) => {
-      const totalWeight = (item.weight || 1) * (item.quantity || 1);
-      const totalValue = (item.value || 0) * (item.quantity || 1);
-
-      const basePackage = {
-        packageId: `package_${index + 1}`,
-        totalWeight,
-        packaging: {
-          height: String(item.height || 10),
-          length: String(item.length || 10),
-          width: String(item.width || 10)
-        },
-        serviceFlags: ['BPM']
-      };
-
-      if (isInternational) {
-        if (!item.harmonizedCode) {
-          console.warn(`⚠️ International item missing HS code:`, { sku: item.sku, hasHarmCode: !!item.harmonizedCode });
-        }
-        if (!item.countryOfOrigin) {
-          console.warn(`⚠️ International item missing country of origin:`, { sku: item.sku, hasCountry: !!item.countryOfOrigin });
-        }
-
-        basePackage.value = totalValue;
-        basePackage.customs = {
-          contentsDescription: 'Merchandise',
-          originCountry: item.countryOfOrigin || 'US',
-          signer: '33 Degrees',
-          customsTag: 'Merchandise',
-          items: [{
-            sku: item.sku || `item-${index + 1}`,
-            description: item.customsDescription || item.description || 'Merchandise',
-            qty: item.quantity || 1,
-            value: item.value || 0,
-            weight: item.weight || 0,
-            countryOfMfg: item.countryOfOrigin || 'US',
-            harmCode: item.harmonizedCode || ''
-          }]
-        };
-      }
-
-      return basePackage;
-    })
-  };
-
-  if (isInternational && SHIPWISE_DEFAULT_CONSIGNEE_TAX_ID) {
-    request.customs = { consigneeTaxId: SHIPWISE_DEFAULT_CONSIGNEE_TAX_ID };
-  }
-
-  return request;
-}
-
-function formatRate(rate) {
-  return {
-    id: rate.carrierService || rate.carrierCode,
-    name: `${rate.carrier} ${rate.class}`.trim(),
-    carrier: rate.carrier,
-    service: rate.class,
-    price: parseFloat(rate.value || rate.baseCharge || 0),
-    delivery_days: rate.transitTime?.estimatedDeliveryDays || rate.estimatedDeliveryDays || null,
-    estimated_delivery: rate.transitTime?.estimatedDelivery || rate.estimatedDelivery || null
-  };
-}
-
-function extractRates(shipwiseData) {
-  const rates = [];
-
-  if (shipwiseData.shipmentItems && shipwiseData.shipmentItems.length > 0) {
-    const packageItem = shipwiseData.shipmentItems[0];
-
-    if (packageItem.selectedRate) {
-      rates.push(formatRate(packageItem.selectedRate));
-    }
-
-    if (packageItem.rates && Array.isArray(packageItem.rates)) {
-      packageItem.rates.forEach((rate) => {
-        rates.push(formatRate(rate));
-      });
-    }
-  }
-
-  return rates.reduce((acc, rate) => {
-    if (!acc.find((r) => r.id === rate.id)) {
-      acc.push(rate);
-    }
-    return acc;
-  }, []);
-}
-
-async function callShipwise({ tier, ratingOptionId, profileId, items, destination, isInternational, bearerToken }) {
-  console.log(`📤 Shipwise call: tier=${tier}, ratingOptionId=${ratingOptionId}`);
-
-  const body = buildShipwiseRequest({ profileId, ratingOptionId, items, destination, isInternational });
-
-  const response = await axios.post(
-    'https://api.shipwise.com/api/v1/Rate',
-    body,
-    {
-      headers: {
-        Authorization: `Bearer ${bearerToken}`,
-        'Content-Type': 'application/json'
-      }
-    }
-  );
-
-  if (!response.data.wasSuccessful) {
-    throw new Error(response.data.responseMsg || 'Shipwise call failed');
-  }
-
-  return extractRates(response.data);
 }
 
 app.get('/', (req, res) => {
@@ -537,6 +398,10 @@ app.post('/api/shipping-rates', attachAuditContext, authenticateCustomer, async 
 
     const { items, destination } = req.body;
 
+    const destinationCountry = (destination?.country || 'US').toUpperCase();
+    const isInternational = destinationCountry !== 'US';
+    console.log(`📍 Destination country: ${destinationCountry}, international: ${isInternational}`);
+
     if (!items || !destination) {
       if (req.audit) {
         req.audit.shipwiseErrorJson = safeJsonString({
@@ -555,9 +420,80 @@ app.post('/api/shipping-rates', attachAuditContext, authenticateCustomer, async 
       });
     }
 
-    const destinationCountry = (destination?.country || SHIPWISE_DEFAULT_ORIGIN_COUNTRY).toUpperCase();
-    const isInternational = destinationCountry !== SHIPWISE_DEFAULT_ORIGIN_COUNTRY;
-    console.log(`📍 Destination country: ${destinationCountry}, international: ${isInternational}`);
+    const shipwiseRequest = {
+      profileId: parseInt(req.customer.profileId, 10),
+      ratingOptionId: req.customer.ratingOptionId || 'STANDARD',
+      addressVerification: false,
+      dateAdvanceDays: 0,
+      to: {
+        id: 0,
+        name: destination.name || 'Customer',
+        company: destination.company || '',
+        address1: destination.address1 || '',
+        address2: destination.address2 || '',
+        city: destination.city || '',
+        state: destination.state || '',
+        postalCode: destination.zip || destination.postalCode || '',
+        countryCode: destination.country || 'US',
+        phone: destination.phone || '',
+        email: destination.email || '',
+        avsInfo: {
+          validationState: 1,
+          isResidential: true
+        }
+      },
+      packages: items.map((item, index) => {
+        const totalWeight = (item.weight || 1) * (item.quantity || 1);
+        const totalValue = (item.value || 0) * (item.quantity || 1);
+
+        const basePackage = {
+          packageId: `package_${index + 1}`,
+          totalWeight,
+          packaging: {
+            height: String(item.height || 10),
+            length: String(item.length || 10),
+            width: String(item.width || 10)
+          },
+          serviceFlags: ['BPM']
+        };
+
+        if (isInternational) {
+          if (!item.harmonizedCode) {
+            console.warn(`⚠️ International item missing HS code:`, { sku: item.sku, hasHarmCode: !!item.harmonizedCode });
+          }
+          if (!item.countryOfOrigin) {
+            console.warn(`⚠️ International item missing country of origin:`, { sku: item.sku, hasCountry: !!item.countryOfOrigin });
+          }
+
+          basePackage.value = totalValue;
+          basePackage.customs = {
+            contentsDescription: 'Merchandise',
+            originCountry: item.countryOfOrigin || 'US',
+            signer: '33 Degrees',
+            customsTag: 'Merchandise',
+            items: [{
+              sku: item.sku || `item-${index + 1}`,
+              description: item.customsDescription || item.description || 'Merchandise',
+              qty: item.quantity || 1,
+              value: item.value || 0,
+              weight: item.weight || 0,
+              countryOfMfg: item.countryOfOrigin || 'US',
+              harmCode: item.harmonizedCode || ''
+            }]
+          };
+        }
+
+        return basePackage;
+      })
+    };
+
+    if (req.audit) {
+      req.audit.shipwiseRequestJson = safeJsonString(shipwiseRequest);
+    }
+
+    console.log('📤 Sending to Shipwise API...');
+    console.log('Profile ID:', req.customer.profileId);
+    console.log('Rating Option ID:', req.customer.ratingOptionId || 'STANDARD');
 
     const shipwiseBearerToken = process.env.SHIPWISE_BEARER_TOKEN || process.env.BEARER_TOKEN;
 
@@ -576,45 +512,85 @@ app.post('/api/shipping-rates', attachAuditContext, authenticateCustomer, async 
       });
     }
 
-    const standardPromise = callShipwise({
-      tier: 'standard',
-      ratingOptionId: req.customer.standardRatingOptionId,
-      profileId: req.customer.profileId,
-      items,
-      destination,
-      isInternational,
-      bearerToken: shipwiseBearerToken
-    }).catch((err) => {
-      console.error(`❌ Standard tier failed: ${err.message}`);
-      return [];
-    });
+    const shipwiseResponse = await axios.post(
+      'https://api.shipwise.com/api/v1/Rate',
+      shipwiseRequest,
+      {
+        headers: {
+          Authorization: `Bearer ${shipwiseBearerToken}`,
+          'Content-Type': 'application/json'
+        }
+      }
+    );
 
-    const expressPromise = req.customer.expressRatingOptionId
-      ? callShipwise({
-          tier: 'express',
-          ratingOptionId: req.customer.expressRatingOptionId,
-          profileId: req.customer.profileId,
-          items,
-          destination,
-          isInternational,
-          bearerToken: shipwiseBearerToken
-        }).catch((err) => {
-          console.error(`❌ Express tier failed: ${err.message}`);
-          return [];
-        })
-      : Promise.resolve([]);
+    if (req.audit) {
+      req.audit.shipwiseResponseJson = safeJsonString(shipwiseResponse.data);
+    }
 
-    const [standardRates, expressRates] = await Promise.all([standardPromise, expressPromise]);
+    console.log('✅ Shipwise response received');
 
-    console.log(`✅ Returning ${standardRates.length} standard + ${expressRates.length} express rate(s)`);
+    if (!shipwiseResponse.data.wasSuccessful) {
+      if (req.audit) {
+        req.audit.shipwiseErrorJson = safeJsonString({
+          message: shipwiseResponse.data.responseMsg,
+          details: shipwiseResponse.data
+        });
+      }
+
+      return res.status(500).json({
+        error: 'Failed to get rates from Shipwise',
+        message: shipwiseResponse.data.responseMsg,
+        details: shipwiseResponse.data
+      });
+    }
+
+    const rates = [];
+
+    if (shipwiseResponse.data.shipmentItems && shipwiseResponse.data.shipmentItems.length > 0) {
+      const packageItem = shipwiseResponse.data.shipmentItems[0];
+
+      if (packageItem.selectedRate) {
+        const rate = packageItem.selectedRate;
+        rates.push({
+          id: rate.carrierService || rate.carrierCode,
+          name: `${rate.carrier} ${rate.class}`.trim(),
+          carrier: rate.carrier,
+          service: rate.class,
+          price: parseFloat(rate.value || rate.baseCharge || 0),
+          delivery_days: rate.transitTime?.estimatedDeliveryDays || rate.estimatedDeliveryDays || null,
+          estimated_delivery: rate.transitTime?.estimatedDelivery || rate.estimatedDelivery || null
+        });
+      }
+
+      if (packageItem.rates && Array.isArray(packageItem.rates)) {
+        packageItem.rates.forEach((rate) => {
+          rates.push({
+            id: rate.carrierService || rate.carrierCode,
+            name: `${rate.carrier} ${rate.class}`.trim(),
+            carrier: rate.carrier,
+            service: rate.class,
+            price: parseFloat(rate.value || rate.baseCharge || 0),
+            delivery_days: rate.transitTime?.estimatedDeliveryDays || rate.estimatedDeliveryDays || null,
+            estimated_delivery: rate.transitTime?.estimatedDelivery || rate.estimatedDelivery || null
+          });
+        });
+      }
+    }
+
+    const uniqueRates = rates.reduce((acc, rate) => {
+      if (!acc.find((r) => r.id === rate.id)) {
+        acc.push(rate);
+      }
+      return acc;
+    }, []);
+
+    console.log(`✅ Returning ${uniqueRates.length} unique rate(s)`);
 
     return res.json({
       success: true,
       customer: req.customer.name,
       profileId: req.customer.profileId,
-      standardRates,
-      expressRates,
-      rates: [...standardRates, ...expressRates]
+      rates: uniqueRates
     });
   } catch (error) {
     console.error('❌ Error getting shipping rates:', error.message);
@@ -653,10 +629,7 @@ app.listen(PORT, () => {
 
   const mappings = loadCustomerMappings();
   const activeCustomers = mappings.customers.filter((c) => c.active).length;
-  const expressEnabledCustomers = mappings.customers.filter((c) => c.active && c.expressRatingOptionId).length;
   console.log(`🔑 Active customers: ${activeCustomers}`);
-  console.log(`🚀 Active customers with express tier: ${expressEnabledCustomers}`);
-  console.log(`🌐 Default consignee tax ID for international: ${SHIPWISE_DEFAULT_CONSIGNEE_TAX_ID ? 'configured' : 'not configured'}`);
 
   console.log('\n📝 Authentication:');
   console.log('   Header: Authorization: Bearer <your-token>');
