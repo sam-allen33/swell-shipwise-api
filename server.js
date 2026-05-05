@@ -454,7 +454,10 @@ app.post('/api/shipping-rates', attachAuditContext, authenticateCustomer, async 
             length: String(item.length || 10),
             width: String(item.width || 10)
           },
-          serviceFlags: ['BPM']
+          serviceFlags: ['BPM'],
+           "customs": {                
+                "consigneeTaxId": "111111"
+            }
         };
 
         if (isInternational) {
