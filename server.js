@@ -455,8 +455,8 @@ app.post('/api/shipping-rates', attachAuditContext, authenticateCustomer, async 
             width: String(item.width || 10)
           },
           serviceFlags: ['BPM'],
-           "customs": {                
-                "consigneeTaxId": "111111"
+           customs: {                
+                consigneeTaxId: '111111'
             }
         };
 
