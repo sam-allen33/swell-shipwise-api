@@ -454,12 +454,8 @@ app.post('/api/shipping-rates', attachAuditContext, authenticateCustomer, async 
             length: String(item.length || 10),
             width: String(item.width || 10)
           },
-          serviceFlags: ['BPM'],
-           customs: {                
-                consigneeTaxId: '111111'
-            }
+          serviceFlags: ['BPM']
         };
-
         if (isInternational) {
           if (!item.harmonizedCode) {
             console.warn(`⚠️ International item missing HS code:`, { sku: item.sku, hasHarmCode: !!item.harmonizedCode });
@@ -467,13 +463,13 @@ app.post('/api/shipping-rates', attachAuditContext, authenticateCustomer, async 
           if (!item.countryOfOrigin) {
             console.warn(`⚠️ International item missing country of origin:`, { sku: item.sku, hasCountry: !!item.countryOfOrigin });
           }
-
           basePackage.value = totalValue;
           basePackage.customs = {
             contentsDescription: 'Merchandise',
             originCountry: item.countryOfOrigin || 'US',
             signer: '33 Degrees',
             customsTag: 'Merchandise',
+            consigneeTaxId: destinationCountry === 'MX' ? 'XAXX010101000' : '111111',
             items: [{
               sku: item.sku || `item-${index + 1}`,
               description: item.customsDescription || item.description || 'Merchandise',
